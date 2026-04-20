@@ -1,0 +1,6 @@
+The core features of init, add, status are relatively straight forward. Branching implementation takes most of time.
+
+@classmethod: 
+@staticmethod
+
+queue is used in merge implementation, we may need to explore multiple parent paths, explore level by level, good for “find if reachable” problems
