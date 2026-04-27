@@ -1,6 +1,6 @@
 import os
 import pytest
-from core import TinyControlSystem
+from src.core import TinyControlSystem
 
 
 def write_text(path, text):
