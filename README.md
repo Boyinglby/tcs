@@ -2,7 +2,7 @@
 
 Tiny Control System, or `tcs`, is a small educational version control system written in Python. It stores repository metadata in a local `.tcs/` directory, stages file snapshots by SHA-256 hash, writes commit objects, tracks branches, supports checkout, and can perform fast-forward merges.
 
-The tested implementation currently lives in the core API. A `tcs` console command is also packaged, but its command handlers are still a CLI scaffold and are not yet wired into the core repository engine.
+The core implementation is exposed through both a Python API and the packaged `tcs` console command.
 
 ## Features
 
@@ -31,7 +31,6 @@ The tested implementation currently lives in the core API. A `tcs` console comma
 |   |   `-- core/
 |   |       |-- core.py
 |   |       `-- utils.py
-|   `-- tcs.egg-info/
 `-- tests/
     `-- core/
         |-- test_core.py
@@ -67,7 +66,7 @@ python -m pip install pytest
 ## Core API Usage
 
 ```python
-from src.tcs.core.core import TinyControlSystem
+from tcs.core.core import TinyControlSystem
 
 repo_path = "example-repo"
 
@@ -106,33 +105,39 @@ vcs.checkout_branch("main")
 vcs.merge("feature")
 ```
 
-## CLI Status
+## CLI Usage
 
-The package installs a `tcs` command:
+The package installs a `tcs` command. Commands operate on the current `.tcs` repository, and most commands discover the repository by walking up from the current directory.
 
 ```powershell
-tcs --help
-```
-
-The current parser includes these commands:
-
-```text
-tcs init
+tcs init [directory]
 tcs status
 tcs add <file>
 tcs commit -m <message>
 tcs log
-tcs diff
+tcs diff [file]
+tcs merge <source>
 tcs config <key> <value>
-tcs branch [name] [commit]
+tcs branch
+tcs branch <name> [commit]
 tcs branch -d <name>
 tcs branch -D <name>
 tcs branch -m <old> <new>
 tcs switch <target>
 tcs switch -c <name>
+tcs switch [-f|--force] <target>
 ```
 
-At the moment, these handlers print placeholder messages. Use the `TinyControlSystem` core API for the functional implementation.
+Example workflow:
+
+```powershell
+tcs init
+tcs config user.name Alice
+tcs config user.email alice@example.com
+tcs add <file>
+tcs commit -m <message>
+tcs log
+```
 
 ## Running Tests
 

@@ -3,4 +3,4 @@
 from .cli import run
 
 def main():
-    run()
+    raise SystemExit(run())

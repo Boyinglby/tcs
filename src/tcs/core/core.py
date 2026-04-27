@@ -4,7 +4,7 @@ import difflib
 from datetime import datetime
 from typing import Any, Dict, Iterator, Optional, Tuple, List
 
-from src.tcs.core.utils import read_file, write_file, list_files, calculate_hash
+from .utils import read_file, write_file, list_files, calculate_hash
 
 from collections import deque
 
@@ -545,6 +545,28 @@ class TinyControlSystem:
 
         os.remove(branch_path)
         return f"Deleted branch '{name}'"
+
+    def rename_branch(self, old_name: str, new_name: str) -> str:
+        if not old_name or old_name.strip() != old_name:
+            raise ValueError("Invalid branch name.")
+        if not new_name or new_name.strip() != new_name or "/" in new_name or ".." in new_name:
+            raise ValueError("Invalid branch name.")
+
+        old_path = self._branch_path(old_name)
+        if not os.path.exists(old_path):
+            raise ValueError(f"Branch '{old_name}' does not exist.")
+
+        new_path = self._branch_path(new_name)
+        if os.path.exists(new_path):
+            raise ValueError(f"Branch '{new_name}' already exists.")
+
+        os.rename(old_path, new_path)
+
+        current_ref = self._get_head_ref()
+        if current_ref == f"refs/heads/{old_name}":
+            self._set_head_ref(f"refs/heads/{new_name}")
+
+        return f"Renamed branch '{old_name}' to '{new_name}'"
 
     def current_branch(self) -> Optional[str]:
         ref = self._get_head_ref()

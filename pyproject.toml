@@ -4,6 +4,9 @@ version = "0.1.0"
 description = "Tiny Control System CLI"
 requires-python = ">=3.8"
 
+[project.optional-dependencies]
+dev = ["pytest"]
+
 [build-system]
 requires = ["setuptools"]
 build-backend = "setuptools.build_meta"
@@ -13,3 +16,7 @@ where = ["src"]
 
 [project.scripts]
 tcs = "tcs.main:main"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]
