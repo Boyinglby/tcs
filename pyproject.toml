@@ -1,0 +1,15 @@
+[project]
+name = "tcs"
+version = "0.1.0"
+description = "Tiny Control System CLI"
+requires-python = ">=3.8"
+
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[project.scripts]
+tcs = "tcs.main:main"

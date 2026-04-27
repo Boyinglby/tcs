@@ -4,7 +4,7 @@ from pathlib import Path
 import pytest
 
 
-from src.core import (
+from src.tcs.core.core import (
     TinyControlSystem,
     calculate_hash,
     list_files,

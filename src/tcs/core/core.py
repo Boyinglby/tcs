@@ -4,7 +4,7 @@ import difflib
 from datetime import datetime
 from typing import Any, Dict, Iterator, Optional, Tuple, List
 
-from src.utils import read_file, write_file, list_files, calculate_hash
+from src.tcs.core.utils import read_file, write_file, list_files, calculate_hash
 
 from collections import deque
 

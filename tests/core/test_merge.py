@@ -3,7 +3,7 @@ from pathlib import Path
 
 import pytest
 
-from src.core import TinyControlSystem
+from src.tcs.core.core import TinyControlSystem
 
 
 def write_file(path: Path, content: str) -> None:
