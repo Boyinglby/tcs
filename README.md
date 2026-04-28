@@ -2,7 +2,7 @@
 
 Tiny Control System, or `tcs`, is a small educational version control system written in Python. It stores repository metadata in a local `.tcs/` directory, stages file snapshots by SHA-256 hash, writes commit objects, tracks branches, supports checkout, and can perform fast-forward merges.
 
-The core implementation is exposed through both a Python API and the packaged `tcs` console command.
+The core implementation is exposed through both a Python API and the packaged `tcs` console command. The public API is centered on `TinyControlSystem`, while the implementation is split into focused operation classes for repository state, config, staging, commits, status, diffs, checkout, branches, and merges.
 
 ## Features
 
@@ -29,14 +29,51 @@ The core implementation is exposed through both a Python API and the packaged `t
 |   |   |-- main.py
 |   |   |-- cli.py
 |   |   `-- core/
+|   |       |-- branch.py
+|   |       |-- checkout.py
+|   |       |-- commit.py
+|   |       |-- config.py
 |   |       |-- core.py
+|   |       |-- diff.py
+|   |       |-- index.py
+|   |       |-- merge.py
+|   |       |-- repository.py
+|   |       |-- status.py
 |   |       `-- utils.py
 `-- tests/
     `-- core/
-        |-- test_core.py
-        |-- test_branching.py
-        `-- test_merge.py
+        |-- conftest.py
+        |-- test_branch.py
+        |-- test_commit.py
+        |-- test_config.py
+        |-- test_diff.py
+        |-- test_index.py
+        |-- test_merge.py
+        |-- test_repository.py
+        |-- test_status.py
+        `-- test_utils.py
 ```
+
+## Architecture
+
+`src/tcs/core/core.py` defines `TinyControlSystem` as a small facade that preserves the original import path and method surface:
+
+```python
+from tcs.core.core import TinyControlSystem
+```
+
+The behavior is organized by responsibility:
+
+- `repository.py`: repository paths, initialization, config/index persistence, object paths, and `HEAD` helpers.
+- `config.py`: supported config keys and config mutation.
+- `index.py`: staging files and writing blob objects.
+- `commit.py`: commit object creation, storage, reading, and log traversal.
+- `status.py`: working tree inspection.
+- `diff.py`: unified diff generation against the latest committed file version.
+- `checkout.py`: commit/branch checkout and working tree restoration.
+- `branch.py`: branch creation, deletion, rename, current branch, and branch listing.
+- `merge.py`: ancestor checks and fast-forward merge behavior.
+- `utils.py`: low-level file, hashing, and recursive file listing helpers.
 
 ## Requirements
 
@@ -51,16 +88,14 @@ From the repository root:
 
 ```powershell
 python -m venv .venv
-.\.venv\Scripts\python.exe -m pip install -e .
-.\.venv\Scripts\python.exe -m pip install pytest
+.\.venv\Scripts\python.exe -m pip install -e ".[dev]"
 ```
 
 If your PowerShell execution policy allows activation scripts, you can activate the environment first:
 
 ```powershell
 .\.venv\Scripts\Activate.ps1
-python -m pip install -e .
-python -m pip install pytest
+python -m pip install -e ".[dev]"
 ```
 
 ## Core API Usage
@@ -146,6 +181,8 @@ tcs log
 ```
 
 The test suite covers repository initialization, config, staging, commits, status, diffs, branch checkout safety, detached `HEAD` behavior, ancestor detection, and fast-forward merge behavior.
+
+Tests are organized to match the core implementation modules. Shared repository fixtures live in `tests/core/conftest.py`.
 
 ## Notes
 
