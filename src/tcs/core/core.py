@@ -39,6 +39,9 @@ class TinyControlSystem(
     DEFAULT_BRANCH = "main"
 
     def __init__(self, root_dir: str) -> None:
+        """
+        Create a TCS object bound to an existing or future repository root.
+        """
         self.root_dir: str = os.path.abspath(root_dir)
         self.tcs_dir: str = os.path.join(self.root_dir, self.REPO_DIR_NAME)
         self.objects_dir: str = os.path.join(self.tcs_dir, self.OBJECTS_DIR_NAME)

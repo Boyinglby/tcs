@@ -7,6 +7,9 @@ from .core.core import TinyControlSystem
 
 
 def find_repository_root(start_dir: str) -> Optional[str]:
+    """
+    Walk upward from start_dir until a TCS repository root is found.
+    """
     current = os.path.abspath(start_dir)
 
     while True:
@@ -20,6 +23,9 @@ def find_repository_root(start_dir: str) -> Optional[str]:
 
 
 def get_vcs() -> TinyControlSystem:
+    """
+    Return a TinyControlSystem bound to the current repository.
+    """
     root = find_repository_root(os.getcwd())
     if root is None:
         raise RuntimeError("Not a TCS repository. Run 'tcs init' first.")
@@ -27,6 +33,9 @@ def get_vcs() -> TinyControlSystem:
 
 
 def print_paths(title: str, paths: Sequence[str]) -> None:
+    """
+    Print a titled, sorted list of paths when the list is non-empty.
+    """
     if not paths:
         return
 
@@ -36,6 +45,9 @@ def print_paths(title: str, paths: Sequence[str]) -> None:
 
 
 def init_repo(args: argparse.Namespace) -> None:
+    """
+    Handle the `tcs init` command.
+    """
     ok, message = TinyControlSystem.init(os.getcwd(), args.directory)
     if not ok:
         raise RuntimeError(message)
@@ -43,6 +55,9 @@ def init_repo(args: argparse.Namespace) -> None:
 
 
 def status(args: argparse.Namespace) -> None:
+    """
+    Handle the `tcs status` command.
+    """
     vcs = get_vcs()
     repo_status = vcs.status()
     current_branch = vcs.current_branch()
@@ -76,12 +91,18 @@ def status(args: argparse.Namespace) -> None:
 
 
 def add(args: argparse.Namespace) -> None:
+    """
+    Handle the `tcs add` command.
+    """
     vcs = get_vcs()
     file_hash = vcs.add(args.file)
     print(f"Staged {args.file} {file_hash}")
 
 
 def commit(args: argparse.Namespace) -> None:
+    """
+    Handle the `tcs commit` command.
+    """
     vcs = get_vcs()
     commit_hash = vcs.commit(args.message)
     branch_name = vcs.current_branch() or "detached HEAD"
@@ -89,6 +110,9 @@ def commit(args: argparse.Namespace) -> None:
 
 
 def log(args: argparse.Namespace) -> None:
+    """
+    Handle the `tcs log` command.
+    """
     vcs = get_vcs()
     commits = list(vcs.log())
 
@@ -111,16 +135,25 @@ def log(args: argparse.Namespace) -> None:
 
 
 def diff(args: argparse.Namespace) -> None:
+    """
+    Handle the `tcs diff` command.
+    """
     vcs = get_vcs()
     print(vcs.diff(args.file))
 
 
 def config(args: argparse.Namespace) -> None:
+    """
+    Handle the `tcs config` command.
+    """
     vcs = get_vcs()
     print(vcs.config(args.key, args.value))
 
 
 def branch(args: argparse.Namespace) -> None:
+    """
+    Handle branch listing, creation, deletion, and rename commands.
+    """
     vcs = get_vcs()
 
     if not any([args.name, args.delete, args.force_delete, args.rename]):
@@ -147,6 +180,9 @@ def branch(args: argparse.Namespace) -> None:
 
 
 def switch(args: argparse.Namespace) -> None:
+    """
+    Handle branch or commit checkout through the `tcs switch` command.
+    """
     vcs = get_vcs()
 
     if args.create:
@@ -165,6 +201,9 @@ def switch(args: argparse.Namespace) -> None:
 
 
 def merge(args: argparse.Namespace) -> None:
+    """
+    Handle the `tcs merge` command.
+    """
     vcs = get_vcs()
     print(vcs.merge(args.source))
 
@@ -174,6 +213,9 @@ def merge(args: argparse.Namespace) -> None:
 # -------------------------
 
 def build_parser() -> argparse.ArgumentParser:
+    """
+    Build the top-level CLI parser and register all subcommands.
+    """
     parser = argparse.ArgumentParser(
         prog="tcs",
         description="Tiny Control System CLI",
@@ -244,6 +286,9 @@ def build_parser() -> argparse.ArgumentParser:
 # -------------------------
 
 def run(argv: Optional[Sequence[str]] = None) -> int:
+    """
+    Parse CLI arguments, dispatch the selected command, and return an exit code.
+    """
     parser = build_parser()
     args = parser.parse_args(argv)
 

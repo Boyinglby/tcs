@@ -10,6 +10,9 @@ class BranchOperations:
     """
 
     def create_branch(self, name: str, start_point: Optional[str] = None, force: bool = False) -> str:
+        """
+        Create a branch at the given start point or at the current HEAD.
+        """
         if not name or name.strip() != name or "/" in name or ".." in name:
             raise ValueError("Invalid branch name.")
 
@@ -29,6 +32,9 @@ class BranchOperations:
         return f"Created branch '{name}'"
 
     def delete_branch(self, name: str) -> str:
+        """
+        Delete an existing branch that is not currently checked out.
+        """
         if not name or name.strip() != name:
             raise ValueError("Invalid branch name.")
 
@@ -44,6 +50,9 @@ class BranchOperations:
         return f"Deleted branch '{name}'"
 
     def rename_branch(self, old_name: str, new_name: str) -> str:
+        """
+        Rename a branch and update HEAD if that branch is checked out.
+        """
         if not old_name or old_name.strip() != old_name:
             raise ValueError("Invalid branch name.")
         if not new_name or new_name.strip() != new_name or "/" in new_name or ".." in new_name:
@@ -66,12 +75,18 @@ class BranchOperations:
         return f"Renamed branch '{old_name}' to '{new_name}'"
 
     def current_branch(self) -> Optional[str]:
+        """
+        Return the checked-out branch name, or None for detached HEAD.
+        """
         ref = self._get_head_ref()
         if not ref:
             return None
         return ref.split("/")[-1]
 
     def list_branches(self) -> List[str]:
+        """
+        Return all local branch names in sorted order.
+        """
         if not os.path.exists(self.refs_heads_dir):
             return []
 

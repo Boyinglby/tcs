@@ -11,6 +11,9 @@ class DiffOperations:
     """
 
     def _get_last_commit_file_content(self, file_path: str) -> Optional[bytes]:
+        """
+        Return a file's content from the current HEAD commit, if tracked.
+        """
         commit_hash = self._get_head_commit()
         if not commit_hash:
             return None
@@ -30,6 +33,9 @@ class DiffOperations:
         return None
 
     def _diff_one(self, file_path: str) -> str:
+        """
+        Return a unified diff for one working tree file.
+        """
         abs_path = os.path.abspath(file_path)
         if not os.path.exists(abs_path):
             return f"File not found: {file_path}"
@@ -53,6 +59,9 @@ class DiffOperations:
         return output if output else "No differences found."
 
     def diff(self, file_path: Optional[str] = None) -> str:
+        """
+        Return unified diffs for one tracked file or all tracked files.
+        """
         if file_path is None:
             staged_files = self._get_staged_files()
             if not staged_files:

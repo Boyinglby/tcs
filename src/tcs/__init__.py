@@ -1,1 +1,1 @@
-# src/tcs/__init__.py
+"""Tiny Control System package."""

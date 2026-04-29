@@ -10,11 +10,17 @@ class CheckoutOperations:
     """
 
     def _would_overwrite_untracked(self, target_files: Dict[str, str]) -> List[str]:
+        """
+        Return untracked paths that would be replaced by a target snapshot.
+        """
         staged = self._load_index()
         _, untracked, _ = self._get_working_tree_changes(staged)
         return [p for p in untracked if p in target_files]
 
     def _has_dirty_worktree_or_index(self) -> bool:
+        """
+        Return True when the index or tracked working tree differs from HEAD.
+        """
         staged = self._load_index()
         modified, _, deleted = self._get_working_tree_changes(staged)
 
@@ -25,14 +31,19 @@ class CheckoutOperations:
         return index_dirty or bool(modified) or bool(deleted)
 
     def _restore_commit_snapshot(self, target_files: Dict[str, str]) -> None:
+        """
+        Rewrite tracked working tree files and index to match a commit snapshot.
+        """
         current_index = self._load_index()
 
+        # Remove files tracked by the current index that are absent from the target snapshot.
         for rel_path in list(current_index.keys()):
             if rel_path not in target_files:
                 abs_path = os.path.join(self.root_dir, rel_path)
                 if os.path.exists(abs_path):
                     os.remove(abs_path)
 
+        # Recreate every tracked file from object storage, including parent directories.
         for rel_path, file_hash in target_files.items():
             object_path = self._object_path(file_hash)
             if not os.path.exists(object_path):
@@ -51,11 +62,15 @@ class CheckoutOperations:
         attach_ref: Optional[str] = None,
         force: bool = False,
     ) -> str:
+        """
+        Shared checkout implementation for detached commits and attached branches.
+        """
         target_files: Dict[str, str] = {}
         if commit_hash:
             target_files = self._read_commit_object(commit_hash).get("files", {})
 
         if not force:
+            # Check tracked changes first, then untracked overwrite conflicts.
             if self._has_dirty_worktree_or_index():
                 raise RuntimeError("Uncommitted changes present. Commit or discard them first.")
 
@@ -78,10 +93,16 @@ class CheckoutOperations:
         return "Checked out empty state"
 
     def checkout_commit(self, commit_hash: str, force: bool = False) -> str:
+        """
+        Restore a commit snapshot and leave HEAD detached at that commit.
+        """
         commit_hash = self._resolve_commit_hash(commit_hash)
         return self._checkout_commit_internal(commit_hash, attach_ref=None, force=force)
 
     def checkout_branch(self, name: str, force: bool = False) -> str:
+        """
+        Switch to a branch and restore its current commit snapshot.
+        """
         branch_path = self._branch_path(name)
         if not os.path.exists(branch_path):
             raise ValueError(f"Branch '{name}' does not exist.")

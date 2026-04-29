@@ -11,10 +11,7 @@ class MergeOperations:
 
     def _get_commit_parents(self, commit_hash: str) -> List[str]:
         """
-        Return all known parents for a commit.
-
-        Current commits have one parent, but this also supports a future
-        merge_parent field.
+        Return all parent commit hashes recorded on a commit object.
         """
         commit_obj = self._read_commit_object(commit_hash)
 
@@ -31,8 +28,7 @@ class MergeOperations:
 
     def _is_ancestor(self, ancestor_hash: str, descendant_hash: str) -> bool:
         """
-        True if ancestor_hash is reachable from descendant_hash.
-        This walks the commit graph using parent links.
+        Return True when ancestor_hash is reachable from descendant_hash.
         """
         if not ancestor_hash or not descendant_hash:
             return False
@@ -43,6 +39,7 @@ class MergeOperations:
         visited = set()
         queue = deque([descendant_hash])
 
+        # Walk the parent graph breadth-first so future merge parents are handled naturally.
         while queue:
             current = queue.popleft()
             if current in visited:
@@ -60,8 +57,7 @@ class MergeOperations:
 
     def _fast_forward_branch(self, branch_name: str, target_commit: str) -> str:
         """
-        Move branch_name to target_commit and update the working tree to match.
-        Assumes the merge is safe and fast-forwardable.
+        Move a branch to a target commit and restore the target snapshot.
         """
         branch_ref = f"refs/heads/{branch_name}"
 
@@ -104,6 +100,7 @@ class MergeOperations:
         if self._is_ancestor(source_commit, current_commit):
             return f"Branch '{current_branch}' already contains '{source}'."
 
+        # A fast-forward is possible only when current is in source history.
         if self._is_ancestor(current_commit, source_commit):
             if self._has_dirty_worktree_or_index():
                 raise RuntimeError("Uncommitted changes present. Commit or discard them first.")

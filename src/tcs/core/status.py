@@ -10,6 +10,9 @@ class StatusOperations:
     """
 
     def _get_working_tree_changes(self, staged_files: Dict[str, str]) -> Tuple[List[str], List[str], List[str]]:
+        """
+        Compare the working tree against the staged snapshot.
+        """
         modified: List[str] = []
         untracked: List[str] = []
         deleted: List[str] = []
@@ -19,6 +22,7 @@ class StatusOperations:
         for file_path in list_files(self.root_dir):
             rel_path = os.path.relpath(file_path, self.root_dir)
 
+            # Repository metadata is internal state, not user content.
             if rel_path.startswith(self.REPO_DIR_NAME):
                 continue
 
@@ -37,6 +41,9 @@ class StatusOperations:
         return modified, untracked, deleted
 
     def status(self) -> Dict[str, Any]:
+        """
+        Return staged, modified, untracked, and deleted working tree paths.
+        """
         staged = self._get_staged_files()
         modified, untracked, deleted = self._get_working_tree_changes(staged)
 
